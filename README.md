@@ -17,10 +17,4 @@ Enterprise-grade monorepo for multi-service applications, infrastructure-as-code
 | `testing/` | Performance, load, chaos, and security testing |
 | `tools/` | CLI wrappers and platform tooling scripts |
 
-## Quick Start
 
-```bash
-# Terraform (dev)
-make tf-init ENV=dev
-make tf-plan ENV=dev
-```
