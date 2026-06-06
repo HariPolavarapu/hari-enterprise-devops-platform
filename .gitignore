@@ -1,0 +1,32 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars.local
+
+# Dependencies
+node_modules/
+target/
+dist/
+__pycache__/
+*.pyc
+bin/
+obj/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs & reports
+*.log
+cicd/trivy/reports/*
