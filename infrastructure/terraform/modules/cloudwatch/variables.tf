@@ -1,2 +1,3 @@
-# Input variables - implementation pending
-
+variable "project_name" {
+  type = string
+}

@@ -1,1 +1,0 @@
-# Environment outputs - implementation pending

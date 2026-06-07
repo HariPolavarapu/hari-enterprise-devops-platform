@@ -1,3 +1,0 @@
-# Notification Python service dependencies - implementation pending
-fastapi>=0.100.0
-uvicorn>=0.23.0

@@ -1,32 +1,22 @@
-# Environment
-.env
-.env.local
-.env.*.local
-
 # Terraform
-.terraform/
 *.tfstate
 *.tfstate.*
-*.tfvars.local
+.terraform/
+crash.log
 
-# Dependencies
-node_modules/
-target/
-dist/
-__pycache__/
-*.pyc
-bin/
-obj/
+# Sensitive files
+*.pem
+*.key
+id_rsa
+id_rsa.pub
 
-# IDE
-.idea/
+# Environment files
+*.env
+infrastructure/terraform/terraform.tfvars
+
+# VSCode
 .vscode/
-*.swp
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Logs & reports
-*.log
-cicd/trivy/reports/*

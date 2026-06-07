@@ -1,2 +1,0 @@
-# Module resources - implementation pending
-

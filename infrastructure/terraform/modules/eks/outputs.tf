@@ -1,2 +1,0 @@
-# Output values - implementation pending
-

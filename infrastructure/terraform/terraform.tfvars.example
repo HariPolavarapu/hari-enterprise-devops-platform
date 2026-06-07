@@ -1,0 +1,17 @@
+aws_region = "us-east-1"
+
+project_name = "hari-enterprise-devops-platform"
+
+vpc_cidr = "10.0.0.0/16"
+
+public_subnet_cidr = "10.0.1.0/24"
+
+private_subnet_cidr = "10.0.2.0/24"
+
+availability_zone = "us-east-1a"
+
+my_ip = "0.0.0.0/32"
+
+ami_id = "ami-xxxxxxxxxxxxxxxxx"
+
+public_key_path = "ssh/id_rsa.pub"
