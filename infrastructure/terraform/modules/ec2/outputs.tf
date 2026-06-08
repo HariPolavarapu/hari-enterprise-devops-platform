@@ -1,5 +1,5 @@
-output "bastion_public_ip" {
-  value = aws_eip.bastion_eip.public_ip
+output "windows_jump_server_public_ip" {
+  value = aws_eip.windows_jump_server_eip.public_ip
 }
 
 output "devops_private_ip" {

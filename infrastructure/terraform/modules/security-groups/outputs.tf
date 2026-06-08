@@ -1,5 +1,5 @@
-output "bastion_sg_id" {
-  value = aws_security_group.bastion_sg.id
+output "windows_jump_server_sg_id" {
+  value = aws_security_group.windows_jump_server_sg.id
 }
 
 output "devops_sg_id" {

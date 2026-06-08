@@ -14,7 +14,7 @@ variable "private_subnet_id" {
   type = string
 }
 
-variable "bastion_sg_id" {
+variable "windows_jump_server_sg_id" {
   type = string
 }
 

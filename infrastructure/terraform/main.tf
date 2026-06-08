@@ -9,15 +9,15 @@ module "vpc" {
 }
 
 # Security groups (inlined from modules/security-groups)
-resource "aws_security_group" "bastion_sg" {
-  name        = "${var.project_name}-bastion-sg"
-  description = "Security group for Bastion Host"
+resource "aws_security_group" "windows_jump_server_sg" {
+  name        = "${var.project_name}-windows-jump-server-sg"
+  description = "Security group for Windows Jump Server"
   vpc_id      = module.vpc.vpc_id
 
   ingress {
-    description = "SSH from my laptop"
-    from_port   = 22
-    to_port     = 22
+    description = "RDP from my laptop"
+    from_port   = 3389
+    to_port     = 3389
     protocol    = "tcp"
     cidr_blocks = [var.my_ip]
   }
@@ -30,7 +30,7 @@ resource "aws_security_group" "bastion_sg" {
   }
 
   tags = {
-    Name = "${var.project_name}-bastion-sg"
+    Name = "${var.project_name}-windows-jump-server-sg"
   }
 }
 
@@ -40,11 +40,11 @@ resource "aws_security_group" "devops_sg" {
   vpc_id      = module.vpc.vpc_id
 
   ingress {
-    description     = "SSH from Bastion"
+    description     = "SSH from Windows Jump Server"
     from_port       = 22
     to_port         = 22
     protocol        = "tcp"
-    security_groups = [aws_security_group.bastion_sg.id]
+    security_groups = [aws_security_group.windows_jump_server_sg.id]
   }
 
   egress {
@@ -140,9 +140,9 @@ module "ec2" {
   public_subnet_id  = module.vpc.public_subnet_id
   private_subnet_id = module.vpc.private_subnet_id
 
-  bastion_sg_id = aws_security_group.bastion_sg.id
-  devops_sg_id  = aws_security_group.devops_sg.id
-  k8s_sg_id     = aws_security_group.k8s_sg.id
+  windows_jump_server_sg_id = aws_security_group.windows_jump_server_sg.id
+  devops_sg_id              = aws_security_group.devops_sg.id
+  k8s_sg_id                 = aws_security_group.k8s_sg.id
 
   devops_instance_profile = module.iam.devops_instance_profile
   k8s_instance_profile    = module.iam.k8s_instance_profile
