@@ -9,42 +9,17 @@ module "vpc" {
 }
 
 # Security groups (inlined from modules/security-groups)
-resource "aws_security_group" "windows_jump_server_sg" {
-  name        = "${var.project_name}-windows-jump-server-sg"
-  description = "Security group for Windows Jump Server"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress {
-    description = "RDP from my laptop"
-    from_port   = 3389
-    to_port     = 3389
-    protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "${var.project_name}-windows-jump-server-sg"
-  }
-}
-
 resource "aws_security_group" "devops_sg" {
   name        = "${var.project_name}-devops-sg"
   description = "Security group for DevOps VM"
   vpc_id      = module.vpc.vpc_id
 
   ingress {
-    description     = "SSH from Windows Jump Server"
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.windows_jump_server_sg.id]
+    description = "SSH from my laptop"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.my_ip]
   }
 
   egress {
@@ -59,39 +34,6 @@ resource "aws_security_group" "devops_sg" {
   }
 }
 
-resource "aws_security_group" "k8s_sg" {
-  name        = "${var.project_name}-k8s-sg"
-  description = "Security group for Kubernetes VM"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress {
-    description     = "SSH from DevOps VM"
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.devops_sg.id]
-  }
-
-  ingress {
-    description = "Kubernetes API"
-    from_port   = 6443
-    to_port     = 6443
-    protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "${var.project_name}-k8s-sg"
-  }
-}
-
 resource "aws_security_group" "rds_sg" {
   name        = "${var.project_name}-rds-sg"
   description = "Security group for PostgreSQL"
@@ -103,14 +45,6 @@ resource "aws_security_group" "rds_sg" {
     to_port         = 5432
     protocol        = "tcp"
     security_groups = [aws_security_group.devops_sg.id]
-  }
-
-  ingress {
-    description     = "Postgres from Kubernetes VM"
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.k8s_sg.id]
   }
 
   egress {
@@ -137,18 +71,24 @@ module "ec2" {
 
   ami_id = var.ami_id
 
-  public_subnet_id  = module.vpc.public_subnet_id
   private_subnet_id = module.vpc.private_subnet_id
 
-  windows_jump_server_sg_id = aws_security_group.windows_jump_server_sg.id
-  devops_sg_id              = aws_security_group.devops_sg.id
-  k8s_sg_id                 = aws_security_group.k8s_sg.id
+  devops_sg_id = aws_security_group.devops_sg.id
 
   devops_instance_profile = module.iam.devops_instance_profile
-  k8s_instance_profile    = module.iam.k8s_instance_profile
 
   public_key_path = var.public_key_path
 }
+
+module "eks" {
+  source = "./modules/eks"
+
+  project_name        = var.project_name
+  eks_cluster_role_arn = var.eks_cluster_role_arn
+  eks_node_role_arn   = var.eks_node_role_arn
+  private_subnet_ids  = [module.vpc.private_subnet_id]
+}
+
 module "ecr" {
   source = "./modules/ecr"
 
@@ -164,11 +104,10 @@ module "rds" {
 }
 
 module "route53" {
-  source            = "./modules/route53"
+  source             = "./modules/route53"
 
-  vpc_id            = module.vpc.vpc_id
-  devops_private_ip = module.ec2.devops_private_ip
-  k8s_private_ip    = module.ec2.k8s_private_ip
+  vpc_id             = module.vpc.vpc_id
+  jenkins_private_ip = module.ec2.jenkins_private_ip
 }
 
 module "cloudwatch" {

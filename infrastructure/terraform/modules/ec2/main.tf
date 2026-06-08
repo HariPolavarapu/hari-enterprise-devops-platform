@@ -4,32 +4,10 @@ resource "aws_key_pair" "project_key" {
 }
 
 # =========================================================
-# WINDOWS JUMP SERVER
+# JENKINS / DEVOPS EC2 INSTANCE
 # =========================================================
 
-resource "aws_instance" "windows_jump_server" {
-
-  ami                    = "ami-0fc682b2a42e57ca2"
-  instance_type          = "t3.small"
-
-  subnet_id              = var.public_subnet_id
-  vpc_security_group_ids = [var.windows_jump_server_sg_id]
-
-  associate_public_ip_address = true
-
-  key_name = aws_key_pair.project_key.key_name
-
-  tags = {
-    Name = "${var.project_name}-windows-jump-server"
-  }
-}
-
-# =========================================================
-# DEVOPS VM
-# =========================================================
-
-resource "aws_instance" "devops" {
-
+resource "aws_instance" "jenkins" {
   ami                    = var.ami_id
   instance_type          = "t3.small"
 
@@ -46,51 +24,6 @@ resource "aws_instance" "devops" {
   iam_instance_profile = var.devops_instance_profile
 
   tags = {
-    Name = "${var.project_name}-devops"
+    Name = "${var.project_name}-jenkins"
   }
-}
-
-# =========================================================
-# KUBERNETES VM
-# =========================================================
-
-resource "aws_instance" "k8s" {
-
-  ami                    = var.ami_id
-  instance_type          = "t3.small"
-
-  subnet_id              = var.private_subnet_id
-  vpc_security_group_ids = [var.k8s_sg_id]
-
-  key_name = aws_key_pair.project_key.key_name
-
-  root_block_device {
-    volume_size = 30
-    volume_type = "gp3"
-  }
-
-  iam_instance_profile = var.k8s_instance_profile
-
-  tags = {
-    Name = "${var.project_name}-k8s"
-  }
-}
-
-# =========================================================
-# ELASTIC IP
-# =========================================================
-
-resource "aws_eip" "windows_jump_server_eip" {
-
-  domain = "vpc"
-
-  tags = {
-    Name = "${var.project_name}-windows-jump-server-eip"
-  }
-}
-
-resource "aws_eip_association" "windows_jump_server_eip_assoc" {
-
-  instance_id   = aws_instance.windows_jump_server.id
-  allocation_id = aws_eip.windows_jump_server_eip.id
 }

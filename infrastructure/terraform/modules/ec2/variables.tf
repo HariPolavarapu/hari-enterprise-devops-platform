@@ -6,15 +6,7 @@ variable "ami_id" {
   type = string
 }
 
-variable "public_subnet_id" {
-  type = string
-}
-
 variable "private_subnet_id" {
-  type = string
-}
-
-variable "windows_jump_server_sg_id" {
   type = string
 }
 
@@ -22,15 +14,7 @@ variable "devops_sg_id" {
   type = string
 }
 
-variable "k8s_sg_id" {
-  type = string
-}
-
 variable "devops_instance_profile" {
-  type = string
-}
-
-variable "k8s_instance_profile" {
   type = string
 }
 

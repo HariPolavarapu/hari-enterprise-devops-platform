@@ -22,6 +22,14 @@ variable "availability_zone" {
   type = string
 }
 
+variable "eks_cluster_role_arn" {
+  type = string
+}
+
+variable "eks_node_role_arn" {
+  type = string
+}
+
 variable "my_ip" {
   description = "Your public IP address (CIDR) for SSH access"
   type        = string
