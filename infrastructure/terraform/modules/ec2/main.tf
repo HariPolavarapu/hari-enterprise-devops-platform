@@ -10,7 +10,7 @@ resource "aws_key_pair" "project_key" {
 resource "aws_instance" "windows_jump_server" {
 
   ami                    = "ami-0fc682b2a42e57ca2"
-  instance_type          = "t3.medium"
+  instance_type          = "t3.small"
 
   subnet_id              = var.public_subnet_id
   vpc_security_group_ids = [var.windows_jump_server_sg_id]
@@ -31,12 +31,17 @@ resource "aws_instance" "windows_jump_server" {
 resource "aws_instance" "devops" {
 
   ami                    = var.ami_id
-  instance_type          = "t2.medium"
+  instance_type          = "t3.small"
 
   subnet_id              = var.private_subnet_id
   vpc_security_group_ids = [var.devops_sg_id]
 
   key_name = aws_key_pair.project_key.key_name
+
+  root_block_device {
+    volume_size = 30
+    volume_type = "gp3"
+  }
 
   iam_instance_profile = var.devops_instance_profile
 
@@ -52,12 +57,17 @@ resource "aws_instance" "devops" {
 resource "aws_instance" "k8s" {
 
   ami                    = var.ami_id
-  instance_type          = "t2.medium"
+  instance_type          = "t3.small"
 
   subnet_id              = var.private_subnet_id
   vpc_security_group_ids = [var.k8s_sg_id]
 
   key_name = aws_key_pair.project_key.key_name
+
+  root_block_device {
+    volume_size = 30
+    volume_type = "gp3"
+  }
 
   iam_instance_profile = var.k8s_instance_profile
 
