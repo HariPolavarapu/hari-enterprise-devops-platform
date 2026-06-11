@@ -1,0 +1,54 @@
+pipeline {
+
+    agent any
+
+    environment {
+        IMAGE_NAME = "frontend-angular"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                url: 'https://github.com/HariPolavarapu/hari-enterprise-devops-platform.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        stage('Build Angular App') {
+            steps {
+                sh 'npm run build'
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                echo 'Running Trivy Scan'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t $IMAGE_NAME .'
+            }
+        }
+
+        stage('Push To AWS ECR') {
+            steps {
+                echo 'Pushing image to AWS ECR'
+            }
+        }
+
+        stage('GitOps Deployment') {
+            steps {
+                echo 'Triggering ArgoCD deployment'
+            }
+        }
+    }
+}

@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: notification-service-test
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/yourusername/hari-enterprise-devops-platform
+    targetRevision: develop
+    path: gitops/helm-charts/notification-service
+    helm:
+      values: |
+        environment: test
+        replicaCount: 2
+        image:
+          tag: test-latest
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        postgresql:
+          host: postgres-test
+          port: 5432
+          database: notification_db_test
+        smtp:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: hari-platform-test
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+    syncOptions:
+    - CreateNamespace=true
+  revisionHistoryLimit: 10

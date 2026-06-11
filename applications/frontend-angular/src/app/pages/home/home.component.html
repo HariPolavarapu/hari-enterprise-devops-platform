@@ -1,0 +1,16 @@
+<div class="home-container">
+  <section class="hero">
+    <h2>Welcome to Hari Enterprise DevOps Platform</h2>
+    <p>Comprehensive Enterprise Resource Planning System</p>
+  </section>
+  
+  <section class="features">
+    <h3>Key Features</h3>
+    <div class="feature-grid">
+      <div class="feature-card" *ngFor="let feature of features">
+        <h4>{{ feature }}</h4>
+        <p>Advanced {{ feature | lowercase }} capabilities for enterprise operations</p>
+      </div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,62 @@
+<div class="employee-container">
+  <h2>Employee Management</h2>
+  
+  <div class="add-employee-form">
+    <h3>Add New Employee</h3>
+    <div class="form-group">
+      <input 
+        type="text" 
+        [(ngModel)]="newEmployee.name" 
+        placeholder="Full Name"
+        class="form-input"
+      />
+      <input 
+        type="email" 
+        [(ngModel)]="newEmployee.email" 
+        placeholder="Email"
+        class="form-input"
+      />
+      <input 
+        type="text" 
+        [(ngModel)]="newEmployee.department" 
+        placeholder="Department"
+        class="form-input"
+      />
+      <input 
+        type="number" 
+        [(ngModel)]="newEmployee.salary" 
+        placeholder="Salary"
+        class="form-input"
+      />
+      <button (click)="addEmployee()" class="btn-primary">Add Employee</button>
+    </div>
+  </div>
+  
+  <div class="employee-list">
+    <h3>Employees</h3>
+    <table class="employee-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Department</th>
+          <th>Salary</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let employee of employees">
+          <td>{{ employee.id }}</td>
+          <td>{{ employee.name }}</td>
+          <td>{{ employee.email }}</td>
+          <td>{{ employee.department }}</td>
+          <td>${{ employee.salary | number }}</td>
+          <td>
+            <button (click)="deleteEmployee(employee.id)" class="btn-danger">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

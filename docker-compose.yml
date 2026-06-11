@@ -1,0 +1,109 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: hari-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hari-network
+
+  # Employee Java Service
+  employee-service:
+    build:
+      context: ./applications/employee-java-service
+      dockerfile: Dockerfile
+    container_name: hari-employee-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/employee_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - hari-network
+
+  # Notification Python Service
+  notification-service:
+    build:
+      context: ./applications/notification-python-service
+      dockerfile: Dockerfile
+    container_name: hari-notification-service
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/notification_db
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+    networks:
+      - hari-network
+
+  # Payroll .NET Service
+  payroll-service:
+    build:
+      context: ./applications/payroll-dotnet-service
+      dockerfile: Dockerfile
+    container_name: hari-payroll-service
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=postgres;Port=5432;Database=payroll_db;User Id=postgres;Password=postgres;
+    ports:
+      - "8082:80"
+    depends_on:
+      - postgres
+    networks:
+      - hari-network
+
+  # Frontend Angular
+  frontend:
+    build:
+      context: ./applications/frontend-angular
+      dockerfile: Dockerfile
+    container_name: hari-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - employee-service
+      - notification-service
+      - payroll-service
+    networks:
+      - hari-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: hari-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./applications/frontend-angular/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - employee-service
+      - notification-service
+      - payroll-service
+    networks:
+      - hari-network
+
+volumes:
+  postgres_data:
+
+networks:
+  hari-network:
+    driver: bridge

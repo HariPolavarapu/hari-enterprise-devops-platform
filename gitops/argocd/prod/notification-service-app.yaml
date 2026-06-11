@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: notification-service-prod
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/yourusername/hari-enterprise-devops-platform
+    targetRevision: main
+    path: gitops/helm-charts/notification-service
+    helm:
+      values: |
+        environment: prod
+        replicaCount: 3
+        image:
+          tag: latest
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        postgresql:
+          host: postgres-prod
+          port: 5432
+          database: notification_db
+        smtp:
+          enabled: true
+          host: smtp.sendgrid.net
+          port: 587
+        autoscaling:
+          enabled: true
+          minReplicas: 3
+          maxReplicas: 10
+          targetCPUUtilizationPercentage: 80
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: hari-platform-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10

@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: employee-service-dev
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/yourusername/hari-enterprise-devops-platform
+    targetRevision: develop
+    path: gitops/helm-charts/employee-service
+    helm:
+      values: |
+        environment: dev
+        replicaCount: 1
+        image:
+          tag: dev-latest
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        postgresql:
+          host: postgres-dev
+          port: 5432
+          database: employee_db_dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: hari-platform-dev
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+    syncOptions:
+    - CreateNamespace=true
+  revisionHistoryLimit: 10

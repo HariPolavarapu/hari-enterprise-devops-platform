@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    networks:
+      - hari-network-test
+
+  employee-service:
+    build:
+      context: ./applications/employee-java-service
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/employee_db_test
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - hari-network-test
+
+  notification-service:
+    build:
+      context: ./applications/notification-python-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+    networks:
+      - hari-network-test
+
+  payroll-service:
+    build:
+      context: ./applications/payroll-dotnet-service
+      dockerfile: Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=postgres;Port=5432;Database=payroll_db_test;User Id=postgres;Password=postgres;
+    ports:
+      - "8082:80"
+    depends_on:
+      - postgres
+    networks:
+      - hari-network-test
+
+volumes:
+  postgres_test_data:
+
+networks:
+  hari-network-test:
+    driver: bridge
