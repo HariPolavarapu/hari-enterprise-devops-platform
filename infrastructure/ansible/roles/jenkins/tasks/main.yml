@@ -1,0 +1,29 @@
+---
+- name: Install Java
+  ansible.builtin.apt:
+    name: openjdk-17-jre
+    state: present
+    update_cache: true
+
+- name: Add Jenkins signing key
+  ansible.builtin.get_url:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+    dest: /usr/share/keyrings/jenkins-keyring.asc
+    mode: "0644"
+
+- name: Add Jenkins repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+    filename: jenkins
+
+- name: Install Jenkins
+  ansible.builtin.apt:
+    name: jenkins
+    state: present
+    update_cache: true
+
+- name: Enable Jenkins
+  ansible.builtin.service:
+    name: jenkins
+    state: started
+    enabled: true

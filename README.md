@@ -1,224 +1,225 @@
-# Hari Enterprise DevOps Platform
+# Enterprise DevOps Platform
 
-Enterprise-grade cloud-native DevOps platform designed and maintained by Hari Krishna Polavarapu.
+A hardened, enterprise-grade reference implementation of a multi-service delivery
+platform on AWS. This repository demonstrates production-ready patterns for
+build automation, security gates, container delivery, infrastructure
+provisioning, GitOps deployment, secrets management, and observability.
 
-This project demonstrates end-to-end DevOps, GitOps, Kubernetes, CI/CD, Infrastructure as Code, observability, and cloud engineering practices using a production-style microservices architecture.
+## Table of Contents
 
----
+- [Architecture Overview](#architecture-overview)
+- [Delivery Flow](#delivery-flow)
+- [Repository Structure](#repository-structure)
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [Local Development](#local-development)
+- [AWS Provisioning](#aws-provisioning)
+- [GitOps Deployment](#gitops-deployment)
+- [Security Controls](#security-controls)
+- [Observability](#observability)
+- [Operations](#operations)
+- [Contributing](#contributing)
+- [Security](#security)
+- [License](#license)
+- [Maintainer](#maintainer)
 
-# Architecture Overview
+## Architecture Overview
 
-The platform is designed around containerized microservices deployed on AWS EKS using GitOps workflows and automated CI/CD pipelines.
+The platform consists of four microservices deployed on Amazon EKS,
+provisioned through Terraform, and reconciled via ArgoCD:
 
-## Core Architecture
+| Service | Technology | Runtime |
+|---------|------------|---------|
+| Employee Service | Spring Boot 3 / Java 17 | JVM |
+| Notification Service | FastAPI / Python 3.12 | Uvicorn |
+| Payroll Service | ASP.NET Core 8 | .NET Runtime |
+| Frontend | Angular 17+ | NGINX |
 
-Frontend Applications
-→ Backend Microservices
-→ Docker Containers
-→ AWS ECR
-→ ArgoCD GitOps
-→ AWS EKS Cluster
+Infrastructure includes VPC networking, EKS cluster, ECR registries, RDS
+PostgreSQL, EC2 bastion hosts, Route 53 DNS, and CloudWatch log groups.
 
----
+## Delivery Flow
 
-# Technology Stack
-
-## Cloud & Infrastructure
-
-* AWS
-* EKS
-* EC2
-* VPC
-* IAM
-* ALB
-* Route53
-* CloudWatch
-* S3
-* RDS
-
----
-
-## CI/CD & GitOps
-
-* GitHub
-* Jenkins
-* ArgoCD
-* Docker
-* AWS ECR
-
----
-
-## Infrastructure Automation
-
-* Terraform
-* Ansible
-
----
-
-## Monitoring & Observability
-
-* Prometheus
-* Grafana
-* ELK Stack
-* Tempo
-* CloudWatch
-
----
-
-## Security & DevSecOps
-
-* HashiCorp Vault
-* Trivy
-* SonarQube
-* Kubernetes RBAC
-
----
-
-# Microservices
-
-## Employee Java Service
-
-Spring Boot based Employee Management backend microservice.
-
-### Stack
-
-* Java 17
-* Spring Boot
-* Maven
-* PostgreSQL
-
----
-
-## Notification Python Service
-
-FastAPI based notification and alerting microservice.
-
-### Stack
-
-* Python
-* FastAPI
-* Uvicorn
-
----
-
-## Frontend Angular
-
-Frontend portal application for enterprise platform operations.
-
-### Stack
-
-* Angular
-* NGINX
-
----
-
-## Payroll Dotnet Service
-
-Payroll processing and salary management microservice.
-
-### Stack
-
-* .NET
-* ASP.NET Core
-
----
-
-# Repository Structure
-
-```text id="e0e4vy"
-applications/
-cicd/
-gitops/
-infrastructure/
-observability/
-security/
-operations/
-docs/
+```text
+Git push
+  -> GitHub Actions CI / Jenkins
+  -> Maven / JUnit, pytest, .NET build, Angular build
+  -> SonarQube quality gate
+  -> Docker image build
+  -> Trivy vulnerability gate (HIGH / CRITICAL)
+  -> AWS ECR push (immutable tags)
+  -> Helm values update in Git
+  -> ArgoCD reconciliation
+  -> AWS EKS deployment
 ```
 
----
+## Repository Structure
 
-# CI/CD Flow
+```text
+applications/          Application source, tests, Dockerfiles, and pipelines
+  employee-java-service/      Spring Boot employee API
+  notification-python-service/ FastAPI notification API
+  payroll-dotnet-service/     ASP.NET Core payroll API
+  frontend-angular/           Angular SPA with NGINX delivery
 
-GitHub
-→ Jenkins Pipeline
-→ Build & Testing
-→ SonarQube Scan
-→ Trivy Security Scan
-→ Docker Build
-→ AWS ECR Push
-→ ArgoCD Sync
-→ AWS EKS Deployment
+cicd/                  Jenkins pipelines, Nexus settings, Trivy config
+docs/                  Architecture diagrams, deployment guides, setup guides
+gitops/                Helm charts and ArgoCD Application manifests
+infrastructure/        Terraform modules and Ansible playbooks
+observability/         Prometheus, Grafana, ELK, Tempo, CloudWatch config
+operations/            Incident, change, RCA, and SOP documentation
+scripts/               Build, deployment, database, and validation automation
+security/              Vault policies, Kubernetes RBAC, Pod Security configs
+```
 
----
+## Prerequisites
 
-# Infrastructure
+- Git
+- Docker Engine 24+
+- Docker Compose v2+
+- Make
 
-Infrastructure provisioning is managed using Terraform modules for:
+For full platform deployment you will also need:
+- Terraform 1.5+
+- AWS CLI
+- kubectl
+- Helm 3+
+- Ansible 2.15+
+- Java 17, Maven 3.9+
+- Python 3.12
+- .NET 8 SDK
+- Node.js 20+
 
-* VPC
-* EKS
-* EC2
-* IAM
-* ALB
-* RDS
-* ECR
-* Route53
-* CloudWatch
+## Quick Start
 
----
+```bash
+# 1. Clone the repository
+git clone https://github.com/HariPolavarapu/hari-enterprise-devops-platform.git
+cd hari-enterprise-devops-platform
 
-# GitOps Deployment Strategy
+# 2. Create local environment file
+cp .env.example .env
 
-ArgoCD continuously monitors Git repositories and synchronizes Kubernetes manifests into the EKS cluster.
+# 3. Start the local stack
+docker compose up --build
 
-Deployment manifests, Helm charts, and ArgoCD applications are maintained inside the GitOps layer of the repository.
+# 4. Access the frontend
+open http://localhost:4200
+```
 
----
+## Local Development
 
-# Monitoring & Logging
+Run repository checks:
 
-The platform integrates centralized monitoring and observability using:
+```bash
+# Validate all components
+make validate
 
-* Prometheus
-* Grafana
-* ELK Stack
-* Tempo
-* AWS CloudWatch
+# Run application tests
+make test
 
----
+# Build local container images
+make build
 
-# Security
+# Start / stop the stack
+make up
+make down
 
-Security implementation includes:
+# View logs
+make logs
+```
 
-* Container image scanning using Trivy
-* Code quality validation using SonarQube
-* Vault-based secrets management
-* Kubernetes RBAC
-* Secure container registry usage
+Individual services can also be started independently. See the README in each
+`applications/` subdirectory for service-specific instructions.
 
----
+## AWS Provisioning
 
-# DevOps Engineering Practices
+> **Warning:** Never commit secrets. All sensitive values must be provided
+> through environment variables or your organization's secrets manager.
 
-* Infrastructure as Code
-* GitOps
-* CI/CD Automation
-* Containerized Microservices
-* Kubernetes Orchestration
-* Environment-based Deployments
-* Centralized Monitoring
-* Security Scanning
-* Operational Documentation
+```bash
+cd infrastructure/terraform
 
----
+# Copy example files to untracked local configuration
+cp terraform.tfvars.example terraform.tfvars
+cp backend.hcl.example backend.hcl
 
-# Maintained By
+# Edit terraform.tfvars and backend.hcl with your environment values
+# (my_ip, ami_id, public_key_path, database credentials, S3 bucket, DynamoDB table)
 
-Hari Krishna Polavarapu
+terraform init -backend-config=backend.hcl
+terraform validate
+terraform plan
+terraform apply
+```
 
-DevOps Engineer
+After provisioning, configure Ansible inventory and run playbooks against the
+approved target hosts.
 
-GitHub:
-https://github.com/HariPolavarapu
+## GitOps Deployment
+
+Helm charts in `gitops/helm-charts/` are the single source of truth for
+Kubernetes workloads. ArgoCD Applications reference these charts and are
+organized by environment namespace (dev, test, prod).
+
+Before bootstrap:
+1. Verify ArgoCD Application manifests point to your repository.
+2. Ensure `targetRevision` matches your active branch.
+3. Never hardcode credentials into manifests; use ArgoCD secrets or Vault.
+
+## Security Controls
+
+- **Source control** – Pre-commit hooks block secrets, large files, and merge
+  conflicts. Gitleaks scans for leaked credentials.
+- **CI gates** – SonarQube quality gate and Trivy HIGH/CRITICAL vulnerability
+  scan must pass before image publication.
+- **Registry** – ECR scan-on-push and immutable tags are enabled.
+- **Runtime** – Workloads run as non-root with dropped Linux capabilities.
+- **Pod Security** – Kubernetes restricted profile is enforced.
+- **Secrets** – Vault policies grant least-privilege read access to scoped paths.
+- **Data** – RDS storage is encrypted with automated backups and deletion
+  protection.
+- **Dependencies** – Dependabot monitors all ecosystems daily.
+- **SBOM** – Software Bills of Materials are generated for every container image.
+
+## Observability
+
+| Signal | Tool | Port |
+|--------|------|------|
+| Metrics | Prometheus | 9090 |
+| Dashboards | Grafana | 3000 |
+| Logs | ELK Stack | 5044 / 9200 / 5601 |
+| Traces | Tempo | 4317 |
+| Cloud | CloudWatch | AWS-native |
+
+See `observability/` for configuration details.
+
+## Operations
+
+Standard procedures are documented in `operations/`:
+
+- `incident-management/` – Incident response workflow
+- `change-management/` – Production change approval process
+- `rca/` – Root Cause Analysis template and process
+- `sop/` – Standard Operating Procedures (backup, rollback, rotation, DR)
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for our code of conduct, pull
+request process, style guides, and sign-off requirements.
+
+## Security
+
+To report a vulnerability, see [SECURITY.md](SECURITY.md) for contact
+information and coordinated disclosure timeline.
+
+## License
+
+This project is licensed under the Apache License 2.0 – see [LICENSE](LICENSE).
+
+## Maintainer
+
+**Hari Krishna Polavarapu**
+
+- GitHub: [https://github.com/HariPolavarapu](https://github.com/HariPolavarapu)
+- LinkedIn: [https://linkedin.com/in/hari-krishna-polavarapu](https://linkedin.com/in/hari-krishna-polavarapu)

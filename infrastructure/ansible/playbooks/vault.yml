@@ -1,0 +1,6 @@
+---
+- name: Deploy Vault
+  hosts: devops
+  become: true
+  roles:
+    - vault

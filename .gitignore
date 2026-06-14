@@ -2,6 +2,7 @@
 *.tfstate
 *.tfstate.*
 .terraform/
+.terraform.lock.hcl
 crash.log
 
 # Sensitive files
@@ -12,7 +13,32 @@ id_rsa.pub
 
 # Environment files
 *.env
+.env.*.local
 infrastructure/terraform/terraform.tfvars
+infrastructure/terraform/backend.hcl
+infrastructure/terraform/ssh/
+
+# JetBrains / IntelliJ
+.idea/
+*.iml
+
+# TextMate
+*.tmproj
+
+# Application build output
+**/target/
+**/bin/
+**/obj/
+**/dist/
+**/node_modules/
+**/.pytest_cache/
+**/__pycache__/
+*.pyc
+
+# Local operations
+logs/
+backups/
+.kimchi/
 
 # VSCode
 .vscode/
@@ -20,3 +46,6 @@ infrastructure/terraform/terraform.tfvars
 # OS
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+*~

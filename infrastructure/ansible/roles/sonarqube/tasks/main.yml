@@ -1,0 +1,18 @@
+---
+- name: Configure virtual memory for Elasticsearch
+  ansible.posix.sysctl:
+    name: vm.max_map_count
+    value: "524288"
+    state: present
+    reload: true
+
+- name: Run SonarQube
+  community.docker.docker_container:
+    name: sonarqube
+    image: sonarqube:10.7-community
+    restart_policy: unless-stopped
+    published_ports:
+      - "9000:9000"
+    volumes:
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-logs:/opt/sonarqube/logs

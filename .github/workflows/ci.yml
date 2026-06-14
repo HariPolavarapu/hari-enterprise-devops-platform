@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [java, python, dotnet, frontend, terraform, helm]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        if: matrix.component == 'java'
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - run: mvn -B clean verify
+        if: matrix.component == 'java'
+        working-directory: applications/employee-java-service
+
+      - uses: actions/setup-python@v5
+        if: matrix.component == 'python'
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: applications/notification-python-service/requirements.txt
+      - run: pip install -r requirements.txt && pytest
+        if: matrix.component == 'python'
+        working-directory: applications/notification-python-service
+
+      - uses: actions/setup-dotnet@v4
+        if: matrix.component == 'dotnet'
+        with:
+          dotnet-version: '8.0.x'
+      - run: dotnet build --configuration Release
+        if: matrix.component == 'dotnet'
+        working-directory: applications/payroll-dotnet-service
+
+      - uses: actions/setup-node@v4
+        if: matrix.component == 'frontend'
+        with:
+          node-version: '20'
+      - run: npm install && npm run build
+        if: matrix.component == 'frontend'
+        working-directory: applications/frontend-angular
+
+      - uses: hashicorp/setup-terraform@v3
+        if: matrix.component == 'terraform'
+      - run: terraform fmt -check -recursive
+        if: matrix.component == 'terraform'
+      - run: terraform init -backend=false && terraform validate
+        if: matrix.component == 'terraform'
+        working-directory: infrastructure/terraform
+
+      - uses: azure/setup-helm@v4
+        if: matrix.component == 'helm'
+      - run: |
+          for chart in gitops/helm-charts/*; do
+            helm lint "$chart"
+          done
+        if: matrix.component == 'helm'
+
+  container-scan:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - image: employee-service
+            context: applications/employee-java-service
+          - image: notification-service
+            context: applications/notification-python-service
+          - image: payroll-service
+            context: applications/payroll-dotnet-service
+          - image: frontend
+            context: applications/frontend-angular
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          tags: ${{ matrix.image }}:${{ github.sha }}
+          load: true
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ matrix.image }}:${{ github.sha }}
+          format: sarif
+          output: trivy-results.sarif
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: true
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif

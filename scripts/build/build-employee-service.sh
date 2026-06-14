@@ -16,7 +16,7 @@ echo "Step 2: Building with Maven..."
 mvn package -DskipTests
 
 echo "Step 3: Building Docker image..."
-docker build -t hari-employee-service:latest .
+docker build -t employee-service:local .
 
 echo "=========================================="
 echo "Employee Java Service build completed!"

@@ -4,11 +4,11 @@
 set -e
 
 echo "=========================================="
-echo "Health Check - Hari DevOps Platform"
+echo "Health Check - Enterprise DevOps Platform"
 echo "=========================================="
 
 SERVICES=(
-    "http://localhost:8080/employees"
+    "http://localhost:8080/api/actuator/health"
     "http://localhost:8081/health"
     "http://localhost:8082/api/health"
     "http://localhost:4200"
@@ -32,7 +32,7 @@ docker-compose ps
 
 echo ""
 echo "Database connection:"
-docker exec hari-postgres psql -U postgres -c "SELECT version();" || echo "Cannot connect to database"
+docker compose exec -T postgres pg_isready -U "${DB_USER:-app_user}" || echo "Cannot connect to database"
 
 echo ""
 echo "=========================================="

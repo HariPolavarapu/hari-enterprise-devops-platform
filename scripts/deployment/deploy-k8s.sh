@@ -13,7 +13,7 @@ if ! command -v kubectl &> /dev/null; then
     exit 1
 fi
 
-NAMESPACE=${1:-hari-platform}
+NAMESPACE=${1:-enterprise-platform}
 ENVIRONMENT=${2:-dev}
 
 echo "Namespace: $NAMESPACE"
@@ -24,37 +24,13 @@ echo "Step 1: Creating namespace..."
 kubectl create namespace $NAMESPACE || echo "Namespace already exists"
 
 echo ""
-echo "Step 2: Creating ConfigMaps and Secrets..."
-kubectl create configmap app-config \
-  --from-literal=ENVIRONMENT=$ENVIRONMENT \
-  -n $NAMESPACE || echo "ConfigMap already exists"
-
-echo ""
-echo "Step 3: Deploying Helm charts..."
-cd gitops/helm-charts
-
-helm install employee-service ./employee-service \
-  -n $NAMESPACE \
-  --values ./employee-service/values-$ENVIRONMENT.yaml || true
-
-helm install notification-service ./notification-service \
-  -n $NAMESPACE \
-  --values ./notification-service/values-$ENVIRONMENT.yaml || true
-
-helm install payroll-service ./payroll-service \
-  -n $NAMESPACE \
-  --values ./payroll-service/values-$ENVIRONMENT.yaml || true
-
-helm install frontend ./frontend \
-  -n $NAMESPACE \
-  --values ./frontend/values-$ENVIRONMENT.yaml || true
-
-cd ../..
-
-echo ""
-echo "Step 4: Applying manifests..."
-kubectl apply -f infrastructure/kubernetes/base/ -n $NAMESPACE
-kubectl apply -f infrastructure/kubernetes/overlays/$ENVIRONMENT/ -n $NAMESPACE
+echo "Step 2: Rendering and deploying Helm charts..."
+for chart in employee-service notification-service payroll-service frontend; do
+  helm upgrade --install "$chart" "gitops/helm-charts/$chart" \
+    --namespace "$NAMESPACE" \
+    --set-string environment.name="$ENVIRONMENT" \
+    --wait --timeout 5m
+done
 
 echo ""
 echo "=========================================="

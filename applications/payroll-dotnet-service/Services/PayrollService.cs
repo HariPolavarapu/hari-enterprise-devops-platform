@@ -11,39 +11,57 @@ namespace PayrollService.Services
 
     public class PayrollService : IPayrollService
     {
+        private static readonly List<Payroll> _payrolls = new();
+        private static int _idSequence = 1;
+
         public async Task<Payroll> CalculatePayrollAsync(int employeeId)
         {
-            // TODO: Implement payroll calculation logic
-            await Task.Delay(100);
-            return new Payroll
+            // Simple payroll calculation for demonstration purposes.
+            // In production this would query an employee store and apply
+            // configurable tax rules, benefits, and deductions.
+            var baseSalary = 50000m;
+            var bonus = baseSalary * 0.10m;
+            var deductions = baseSalary * 0.20m;
+            var netSalary = baseSalary + bonus - deductions;
+
+            var payroll = new Payroll
             {
+                Id = _idSequence++,
                 EmployeeId = employeeId,
-                BaseSalary = 50000,
-                Bonus = 5000,
-                Deductions = 5000,
-                NetSalary = 50000,
+                PayPeriodStart = DateTime.UtcNow.AddDays(-14),
+                PayPeriodEnd = DateTime.UtcNow,
+                BaseSalary = baseSalary,
+                Bonus = bonus,
+                Deductions = deductions,
+                NetSalary = netSalary,
                 Status = PaymentStatus.Pending,
                 CreatedDate = DateTime.UtcNow
             };
+
+            _payrolls.Add(payroll);
+            return await Task.FromResult(payroll);
         }
 
         public async Task<Payroll> ProcessPayrollAsync(int payrollId)
         {
-            // TODO: Implement payroll processing logic
-            await Task.Delay(100);
-            return new Payroll
+            var payroll = _payrolls.FirstOrDefault(p => p.Id == payrollId);
+            if (payroll == null)
             {
-                Id = payrollId,
-                Status = PaymentStatus.Processed,
-                ProcessedDate = DateTime.UtcNow
-            };
+                throw new KeyNotFoundException($"Payroll {payrollId} not found.");
+            }
+
+            payroll.Status = PaymentStatus.Processed;
+            payroll.ProcessedDate = DateTime.UtcNow;
+            return await Task.FromResult(payroll);
         }
 
         public async Task<List<Payroll>> GetPayrollHistoryAsync(int employeeId)
         {
-            // TODO: Implement payroll history retrieval
-            await Task.Delay(100);
-            return new List<Payroll>();
+            var history = _payrolls
+                .Where(p => p.EmployeeId == employeeId)
+                .OrderByDescending(p => p.CreatedDate)
+                .ToList();
+            return await Task.FromResult(history);
         }
     }
 }

@@ -22,7 +22,7 @@ echo "Step 4: Publishing..."
 dotnet publish --configuration Release --output ./bin/publish
 
 echo "Step 5: Building Docker image..."
-docker build -t hari-payroll-service:latest .
+docker build -t payroll-service:local .
 
 echo "=========================================="
 echo "Payroll .NET Service build completed!"

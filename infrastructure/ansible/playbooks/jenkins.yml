@@ -1,0 +1,6 @@
+---
+- name: Configure Jenkins controller
+  hosts: devops
+  become: true
+  roles:
+    - jenkins

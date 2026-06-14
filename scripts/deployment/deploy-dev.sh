@@ -4,7 +4,7 @@
 set -e
 
 echo "=========================================="
-echo "Deploying Hari DevOps Platform (Development)"
+echo "Deploying Enterprise DevOps Platform (Development)"
 echo "=========================================="
 
 # Check Docker and Docker Compose

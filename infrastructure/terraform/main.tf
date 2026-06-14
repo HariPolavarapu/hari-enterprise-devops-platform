@@ -1,11 +1,11 @@
 module "vpc" {
   source = "./modules/vpc"
 
-  project_name        = var.project_name
-  vpc_cidr            = var.vpc_cidr
-  public_subnet_cidr  = var.public_subnet_cidr
-  private_subnet_cidr = var.private_subnet_cidr
-  availability_zone   = var.availability_zone
+  project_name         = var.project_name
+  vpc_cidr             = var.vpc_cidr
+  public_subnet_cidrs  = var.public_subnet_cidrs
+  private_subnet_cidrs = var.private_subnet_cidrs
+  availability_zones   = var.availability_zones
 }
 
 # Security groups (inlined from modules/security-groups)
@@ -71,7 +71,7 @@ module "ec2" {
 
   ami_id = var.ami_id
 
-  private_subnet_id = module.vpc.private_subnet_id
+  private_subnet_id = module.vpc.private_subnet_ids[0]
 
   devops_sg_id = aws_security_group.devops_sg.id
 
@@ -83,10 +83,11 @@ module "ec2" {
 module "eks" {
   source = "./modules/eks"
 
-  project_name        = var.project_name
-  eks_cluster_role_arn = var.eks_cluster_role_arn
-  eks_node_role_arn   = var.eks_node_role_arn
-  private_subnet_ids  = [module.vpc.private_subnet_id]
+  project_name         = var.project_name
+  eks_cluster_role_arn = module.iam.eks_cluster_role_arn
+  eks_node_role_arn    = module.iam.eks_node_role_arn
+  private_subnet_ids   = module.vpc.private_subnet_ids
+  depends_on           = [module.iam]
 }
 
 module "ecr" {
@@ -98,20 +99,22 @@ module "ecr" {
 module "rds" {
   source = "./modules/rds"
 
-  project_name      = var.project_name
-  private_subnet_id = module.vpc.private_subnet_id
-  rds_sg_id         = aws_security_group.rds_sg.id
+  project_name       = var.project_name
+  private_subnet_ids = module.vpc.private_subnet_ids
+  rds_sg_id          = aws_security_group.rds_sg.id
+  database_username  = var.database_username
+  database_password  = var.database_password
 }
 
 module "route53" {
-  source             = "./modules/route53"
+  source = "./modules/route53"
 
   vpc_id             = module.vpc.vpc_id
   jenkins_private_ip = module.ec2.jenkins_private_ip
 }
 
 module "cloudwatch" {
-  source       = "./modules/cloudwatch"
+  source = "./modules/cloudwatch"
 
   project_name = var.project_name
 }

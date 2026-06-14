@@ -1,0 +1,20 @@
+replicaCount: 2
+image:
+  repository: notification-service
+  tag: latest
+  pullPolicy: IfNotPresent
+service:
+  port: 8000
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 300m
+    memory: 256Mi
+smtp:
+  host: ""
+  port: 587
+  existingSecret: notification-smtp
+  usernameKey: username
+  passwordKey: password

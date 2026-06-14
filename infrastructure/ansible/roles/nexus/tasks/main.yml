@@ -1,0 +1,10 @@
+---
+- name: Run Nexus
+  community.docker.docker_container:
+    name: nexus
+    image: sonatype/nexus3:3.71.0
+    restart_policy: unless-stopped
+    published_ports:
+      - "8081:8081"
+    volumes:
+      - nexus-data:/nexus-data

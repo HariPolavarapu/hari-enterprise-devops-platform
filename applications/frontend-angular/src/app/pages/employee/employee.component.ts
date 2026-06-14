@@ -25,9 +25,9 @@ export class EmployeeComponent implements OnInit {
   loadEmployees() {
     // Mock data - in production, this would call an API
     this.employees = [
-      { id: 1, name: 'John Doe', email: 'john@example.com', department: 'Engineering', salary: 75000 },
-      { id: 2, name: 'Jane Smith', email: 'jane@example.com', department: 'HR', salary: 65000 },
-      { id: 3, name: 'Bob Wilson', email: 'bob@example.com', department: 'Finance', salary: 70000 }
+      { id: 1, name: 'Alpha Testuser', email: 'alpha.testuser@example.invalid', department: 'Engineering', salary: 75000 },
+      { id: 2, name: 'Beta Testuser', email: 'beta.testuser@example.invalid', department: 'HR', salary: 65000 },
+      { id: 3, name: 'Gamma Testuser', email: 'gamma.testuser@example.invalid', department: 'Finance', salary: 70000 }
     ];
   }
 

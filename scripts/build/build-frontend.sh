@@ -22,7 +22,7 @@ echo "Step 4: Building for production..."
 npm run build
 
 echo "Step 5: Building Docker image..."
-docker build -t hari-frontend:latest .
+docker build -t frontend:local .
 
 echo "=========================================="
 echo "Frontend Angular build completed!"

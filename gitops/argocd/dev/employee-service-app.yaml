@@ -6,8 +6,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/yourusername/hari-enterprise-devops-platform
-    targetRevision: develop
+    repoURL: https://github.com/HariPolavarapu/hari-enterprise-devops-platform.git
+    targetRevision: main
     path: gitops/helm-charts/employee-service
     helm:
       values: |
@@ -28,7 +28,7 @@ spec:
           database: employee_db_dev
   destination:
     server: https://kubernetes.default.svc
-    namespace: hari-platform-dev
+    namespace: enterprise-platform-dev
   syncPolicy:
     automated:
       prune: false

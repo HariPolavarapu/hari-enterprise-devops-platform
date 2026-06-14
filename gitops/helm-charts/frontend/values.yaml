@@ -1,0 +1,20 @@
+replicaCount: 2
+image:
+  repository: frontend
+  tag: latest
+  pullPolicy: IfNotPresent
+service:
+  port: 80
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+ingress:
+  enabled: false
+  className: nginx
+  # Replace with the actual domain during environment bootstrap.
+  host: platform.local.invalid
+  tlsSecretName: platform-tls

@@ -20,7 +20,7 @@ echo "Step 3: Running tests..."
 pytest tests/ || true
 
 echo "Step 4: Building Docker image..."
-docker build -t hari-notification-service:latest .
+docker build -t notification-service:local .
 
 echo "=========================================="
 echo "Notification Python Service build completed!"

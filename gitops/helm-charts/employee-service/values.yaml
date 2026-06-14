@@ -1,0 +1,26 @@
+replicaCount: 2
+image:
+  repository: employee-service
+  tag: latest
+  pullPolicy: IfNotPresent
+service:
+  port: 8080
+  targetPort: 8080
+environment:
+  DATABASE_URL: jdbc:postgresql://postgresql:5432/employee_db
+  DATABASE_USERNAME: app_user
+secret:
+  existingSecret: platform-database
+  passwordKey: password
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70

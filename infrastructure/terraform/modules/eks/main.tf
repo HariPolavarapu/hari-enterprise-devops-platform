@@ -1,9 +1,13 @@
 resource "aws_eks_cluster" "main" {
-  name     = "${var.project_name}-eks"
-  role_arn = var.eks_cluster_role_arn
+  name                      = "${var.project_name}-eks"
+  role_arn                  = var.eks_cluster_role_arn
+  version                   = "1.35"
+  enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 
   vpc_config {
-    subnet_ids = var.private_subnet_ids
+    subnet_ids              = var.private_subnet_ids
+    endpoint_private_access = true
+    endpoint_public_access  = true
   }
 
   tags = {
@@ -28,4 +32,6 @@ resource "aws_eks_node_group" "main" {
   tags = {
     Name = "${var.project_name}-node-group"
   }
+
+  depends_on = [aws_eks_cluster.main]
 }

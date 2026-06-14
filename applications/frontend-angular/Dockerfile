@@ -19,11 +19,14 @@ RUN npm run build
 # =========================================================
 
 FROM nginx:alpine
+RUN addgroup -S app && adduser -S app -G app
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist/frontend /usr/share/nginx/html
+RUN chown -R app:app /usr/share/nginx/html /var/cache/nginx /var/run
+USER app
 
-EXPOSE 80
+EXPOSE 8080
 
 CMD ["nginx", "-g", "daemon off;"]

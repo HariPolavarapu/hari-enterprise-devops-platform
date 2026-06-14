@@ -1,0 +1,17 @@
+---
+- name: Install base packages
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - unzip
+      - jq
+      - git
+    state: present
+    update_cache: true
+
+- name: Enable time synchronization
+  ansible.builtin.service:
+    name: systemd-timesyncd
+    state: started
+    enabled: true

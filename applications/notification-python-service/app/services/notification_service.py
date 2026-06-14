@@ -1,4 +1,7 @@
 import logging
+import smtplib
+from email.message import EmailMessage
+from app.config import config
 
 logger = logging.getLogger(__name__)
 
@@ -7,49 +10,23 @@ class EmailService:
     
     @staticmethod
     def send_email(recipient: str, subject: str, message: str) -> bool:
-        """
-        Send email notification
-        In production, this would integrate with SMTP or email service provider
-        """
+        """Send an email through the configured SMTP relay."""
+        if not config.SMTP_HOST:
+            raise RuntimeError("SMTP_HOST is not configured")
         try:
-            logger.info(f"Sending email to {recipient}: {subject}")
-            # Placeholder for actual email sending logic
-            # In production: use smtplib, SendGrid, AWS SES, etc.
+            email = EmailMessage()
+            email["From"] = config.SMTP_FROM
+            email["To"] = recipient
+            email["Subject"] = subject
+            email.set_content(message)
+            with smtplib.SMTP(config.SMTP_HOST, config.SMTP_PORT, timeout=10) as client:
+                if config.SMTP_STARTTLS:
+                    client.starttls()
+                if config.SMTP_USER:
+                    client.login(config.SMTP_USER, config.SMTP_PASSWORD)
+                client.send_message(email)
             return True
         except Exception as e:
             logger.error(f"Failed to send email: {str(e)}")
             return False
 
-class SMSService:
-    """SMS notification service"""
-    
-    @staticmethod
-    def send_sms(phone_number: str, message: str) -> bool:
-        """
-        Send SMS notification
-        In production, this would integrate with Twilio, AWS SNS, etc.
-        """
-        try:
-            logger.info(f"Sending SMS to {phone_number}")
-            # Placeholder for actual SMS sending logic
-            return True
-        except Exception as e:
-            logger.error(f"Failed to send SMS: {str(e)}")
-            return False
-
-class PushNotificationService:
-    """Push notification service"""
-    
-    @staticmethod
-    def send_push(user_id: str, title: str, message: str) -> bool:
-        """
-        Send push notification
-        In production, this would integrate with Firebase, OneSignal, etc.
-        """
-        try:
-            logger.info(f"Sending push notification to user {user_id}: {title}")
-            # Placeholder for actual push notification logic
-            return True
-        except Exception as e:
-            logger.error(f"Failed to send push notification: {str(e)}")
-            return False

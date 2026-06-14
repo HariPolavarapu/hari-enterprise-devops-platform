@@ -1,0 +1,6 @@
+---
+- name: Install Kubernetes administration tools
+  hosts: devops
+  become: true
+  roles:
+    - kubernetes

@@ -1,0 +1,11 @@
+---
+- name: Copy observability stack
+  ansible.builtin.copy:
+    src: ../../../../../observability/
+    dest: /opt/enterprise-platform/observability/
+    mode: preserve
+
+- name: Start observability stack
+  community.docker.docker_compose_v2:
+    project_src: /opt/enterprise-platform/observability
+    state: present

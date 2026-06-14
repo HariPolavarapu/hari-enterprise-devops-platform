@@ -1,0 +1,27 @@
+# CODEOWNERS
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Replace @your-org/platform-maintainers with your actual GitHub team or user handles.
+
+# Global default
+*                           @your-org/platform-maintainers
+
+# Infrastructure changes require infrastructure team review
+infrastructure/             @your-org/infrastructure-team
+infrastructure/terraform/   @your-org/infrastructure-team
+infrastructure/ansible/     @your-org/infrastructure-team
+
+# Security policies and Vault/RBAC changes require security team review
+security/                   @your-org/security-team
+security/vault/             @your-org/security-team
+security/rbac/              @your-org/security-team
+.github/workflows/          @your-org/security-team @your-org/platform-maintainers
+
+# GitOps / Helm chart changes require platform and SRE review
+gitops/                     @your-org/sre-team @your-org/platform-maintainers
+gitops/helm-charts/         @your-org/sre-team @your-org/platform-maintainers
+gitops/argocd/              @your-org/sre-team @your-org/platform-maintainers
+
+# CI/CD configuration changes
+Jenkinsfile                 @your-org/platform-maintainers
+.github/workflows/          @your-org/platform-maintainers

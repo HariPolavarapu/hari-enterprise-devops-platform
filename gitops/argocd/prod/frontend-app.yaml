@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/yourusername/hari-enterprise-devops-platform
+    repoURL: https://github.com/HariPolavarapu/hari-enterprise-devops-platform.git
     targetRevision: main
     path: gitops/helm-charts/frontend
     helm:
@@ -39,7 +39,7 @@ spec:
           targetCPUUtilizationPercentage: 80
   destination:
     server: https://kubernetes.default.svc
-    namespace: hari-platform-prod
+    namespace: enterprise-platform-prod
   syncPolicy:
     automated:
       prune: true

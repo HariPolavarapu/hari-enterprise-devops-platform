@@ -1,0 +1,6 @@
+---
+- name: Configure base operating system
+  hosts: all
+  become: true
+  roles:
+    - common

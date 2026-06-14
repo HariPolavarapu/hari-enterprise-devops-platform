@@ -28,18 +28,24 @@ fi
 echo "✓ Prerequisites met"
 echo ""
 
+# Generate a secure random password for local development if not already provided.
+# WARNING: This is auto-generated for local development only. Replace with a
+# strong, unique password before deploying to any shared or production environment.
+DB_PASSWORD="${DB_PASSWORD:-$(openssl rand -base64 32 2>/dev/null || head -c 32 /dev/urandom | base64 | tr -d '=+/'))}"
+
 # Create environment files
 echo "Creating environment files..."
 
 if [ ! -f ".env" ]; then
     cat > .env << EOF
 # Development Environment Variables
+# WARNING: Never commit this file. It is generated for local development only.
 ENVIRONMENT=dev
 DB_HOST=postgres
 DB_PORT=5432
 DB_USER=postgres
-DB_PASSWORD=postgres
-DB_NAME=hari_dev
+DB_PASSWORD=${DB_PASSWORD}
+DB_NAME=platform_dev
 
 # API Configuration
 API_PORT=8080
@@ -65,8 +71,8 @@ echo "✓ Log directories created"
 echo ""
 echo "Pulling Docker base images..."
 docker pull postgres:16-alpine
-docker pull node:20-alpine
-docker pull openjdk:17-slim
+docker pull node:22-alpine
+docker pull eclipse-temurin:17-jre-alpine
 docker pull mcr.microsoft.com/dotnet/sdk:8.0
 
 echo "✓ Base images pulled"

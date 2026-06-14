@@ -8,8 +8,8 @@ resource "aws_key_pair" "project_key" {
 # =========================================================
 
 resource "aws_instance" "jenkins" {
-  ami                    = var.ami_id
-  instance_type          = "t3.small"
+  ami           = var.ami_id
+  instance_type = "t3.small"
 
   subnet_id              = var.private_subnet_id
   vpc_security_group_ids = [var.devops_sg_id]

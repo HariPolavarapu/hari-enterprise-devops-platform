@@ -1,4 +1,5 @@
 using PayrollService.Models;
+using PayrollService.Services;
 
 namespace PayrollService.Controllers
 {
@@ -9,10 +10,12 @@ namespace PayrollService.Controllers
     public class PayrollController : ControllerBase
     {
         private readonly ILogger<PayrollController> _logger;
+        private readonly IPayrollService _payrollService;
 
-        public PayrollController(ILogger<PayrollController> logger)
+        public PayrollController(ILogger<PayrollController> logger, IPayrollService payrollService)
         {
             _logger = logger;
+            _payrollService = payrollService;
         }
 
         [HttpGet("{id}")]
@@ -34,12 +37,7 @@ namespace PayrollService.Controllers
         {
             _logger.LogInformation($"Calculating payroll for employee: {employeeId}");
             
-            // TODO: Call PayrollService
-            var payroll = new Payroll
-            {
-                EmployeeId = employeeId,
-                Status = PaymentStatus.Pending
-            };
+            var payroll = await _payrollService.CalculatePayrollAsync(employeeId);
 
             return Ok(new ApiResponse<Payroll>(true, "Payroll calculated successfully", payroll));
         }
@@ -49,12 +47,7 @@ namespace PayrollService.Controllers
         {
             _logger.LogInformation($"Processing payroll: {payrollId}");
             
-            // TODO: Call PayrollService
-            var payroll = new Payroll
-            {
-                Id = payrollId,
-                Status = PaymentStatus.Processed
-            };
+            var payroll = await _payrollService.ProcessPayrollAsync(payrollId);
 
             return Ok(new ApiResponse<Payroll>(true, "Payroll processed successfully", payroll));
         }

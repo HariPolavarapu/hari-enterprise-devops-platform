@@ -1,0 +1,6 @@
+---
+- name: Deploy Nexus repository manager
+  hosts: devops
+  become: true
+  roles:
+    - nexus

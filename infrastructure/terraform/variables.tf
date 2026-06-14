@@ -10,24 +10,28 @@ variable "vpc_cidr" {
   type = string
 }
 
-variable "public_subnet_cidr" {
-  type = string
+variable "public_subnet_cidrs" {
+  type = list(string)
+  validation {
+    condition     = length(var.public_subnet_cidrs) >= 2
+    error_message = "At least two public subnet CIDRs are required."
+  }
 }
 
-variable "private_subnet_cidr" {
-  type = string
+variable "private_subnet_cidrs" {
+  type = list(string)
+  validation {
+    condition     = length(var.private_subnet_cidrs) >= 2
+    error_message = "At least two private subnet CIDRs are required."
+  }
 }
 
-variable "availability_zone" {
-  type = string
-}
-
-variable "eks_cluster_role_arn" {
-  type = string
-}
-
-variable "eks_node_role_arn" {
-  type = string
+variable "availability_zones" {
+  type = list(string)
+  validation {
+    condition     = length(var.availability_zones) >= 2
+    error_message = "At least two availability zones are required."
+  }
 }
 
 variable "my_ip" {
@@ -47,4 +51,14 @@ variable "public_key_path" {
     condition     = !(startswith(var.public_key_path, "/") || can(regex("^[A-Za-z]:", var.public_key_path)))
     error_message = "public_key_path must be relative to the Terraform root module, not an absolute path."
   }
+}
+
+variable "database_username" {
+  type      = string
+  sensitive = true
+}
+
+variable "database_password" {
+  type      = string
+  sensitive = true
 }
